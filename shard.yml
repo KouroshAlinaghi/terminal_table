@@ -1,0 +1,9 @@
+name: terminal_table
+version: 0.1.0
+
+authors:
+  - KouroshAlinaghi <kouroshalinaghi@gmail.com>
+
+crystal: 1.0.0-dev
+
+license: MIT
