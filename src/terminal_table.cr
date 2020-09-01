@@ -3,39 +3,58 @@ module TerminalTable
 
   class Table
 
+    @pattern : Array(Int32)
+
     def initialize(
         @rows : Array(Array(Int32 | String)), 
         @enable_separator : Bool = true, 
-        @header : (Array(String) | Nil) = nil, 
+        @header : (Array(String)) = [] of String, 
         @corner_char : String = "+", 
         @row_char : String = "-", 
         @col_char : String = "|"
       )
+      @pattern = get_lengthes()
+    end
+
+    def get_lengthes()
+      index = @rows[0].size
+      pattern = Array(Int32).new
+      (0..index-1).each do |i|
+        pattern.push @rows.map{|row| row[i].to_s.size}.max
+      end
+      return pattern if @header.empty?
+      q = 0
+      l = @header.map{|t| t.size}
+      while q < pattern.size 
+        if pattern[q] < l[q]
+          pattern[q] = l[q]
+        end
+        q+=1
+      end
+
+      pattern
     end
 
     def to_s
       string = ""
-      index = @rows[0].size
-      lengthes = Array(Int32).new
-      (0..index-1).each do |i|
-        lengthes.push @rows.map{|row| row[i].to_s.size}.max
+      if !@enable_separator && !@header.empty?
+        string += row_line_component() unless @enable_separator
       end
-      string += row_line_component(lengthes) unless @enable_separator
-      string += row_component(lengthes, @header) 
+      string += row_component(@header, true) 
       if !@header.nil? && !@enable_separator
         string += "\n"
-        string += row_line_component(lengthes) 
+        string += row_line_component() 
       end
       @rows.each do |row|
-        string += row_component(lengthes, row)
+        string += row_component(row, false)
       end
       string += "\n" unless @enable_separator
-      string += row_line_component(lengthes)
+      string += row_line_component()
     end
 
-    def row_line_component(lengthes) 
+    def row_line_component() 
       str = @corner_char
-      lengthes.each do |l|
+      @pattern.each do |l|
         (l+2).times {str += @row_char}
         str += @corner_char
       end
@@ -49,18 +68,29 @@ module TerminalTable
       str
     end
 
-    def row_component(lengthes, row)
+    def row_component(row, is_header)
       string = ""
-      unless row.nil?
-        string += row_line_component(lengthes) if @enable_separator
+      unless row.empty?
+        string += row_line_component() if @enable_separator
         string += "\n"
         i = 0
         while i < row.size
-          col_length = @rows.map{|row| row[i].to_s.size}.max
+          col_length = @pattern[i]
           col = row[i]
           string += @col_char
-          first_escape = col_length - col.to_s.size % 2 == 0 ? string_duplicate(((col_length - col.to_s.size)/2).to_i) : " "
-          last_escape = col_length - col.to_s.size % 2 == 0 ? first_escape : string_duplicate(col_length-col.to_s.size)
+          if is_header
+            a = (col_length-col.to_s.size)/2
+            if a.to_i == a
+              first_escape = string_duplicate(a.to_i) 
+              last_escape = string_duplicate(a.to_i)
+            else
+              first_escape = string_duplicate a.to_i
+              last_escape = string_duplicate a.to_i+1
+            end
+          else
+            first_escape = " "
+            last_escape = string_duplicate(col_length - col.to_s.size )
+          end
           string += first_escape
           string += col.to_s
           string += last_escape
@@ -73,9 +103,3 @@ module TerminalTable
     end
   end
 end
-args = [
-  ["kourosh", 15],
-  ["ali", 123],
-  ["amirmohammad", 0]
-]
-puts TerminalTable::Table.new(rows: args).to_s
