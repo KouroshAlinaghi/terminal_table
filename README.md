@@ -45,7 +45,7 @@ table = TerminalTable::Table.new(rows: r, header: h)
   Example: 
   ```
 +---------+-----+
-| Name    | Age |
+|  Name   | Age |
 +---------+-----+
 | Kourosh | 17  |
 +---------+-----+
