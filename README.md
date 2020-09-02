@@ -53,6 +53,8 @@ table = TerminalTable::Table.new(rows: r, header: h)
 +---------+-----+
   ```
 
+**Important**: Do not use `p()` method instead of `puts()`! it will consider `"\n"` as a normal string.
+
 ## Contributing
 
 1. Fork it (<https://github.com/kouroshalinaghi/terminal_table/fork>)
