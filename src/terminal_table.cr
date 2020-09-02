@@ -31,8 +31,7 @@ module TerminalTable
         end
         q+=1
       end
-
-      pattern
+      return pattern
     end
 
     def to_s
@@ -62,8 +61,7 @@ module TerminalTable
     end
 
     def string_duplicate(times) 
-      "" if times == 0
-      str = " "
+      str = ""
       times.times {str += " "}
       str
     end
@@ -79,17 +77,17 @@ module TerminalTable
           col = row[i]
           string += @col_char
           if is_header
-            a = (col_length-col.to_s.size)/2
+            a = (col_length+2-col.to_s.size)/2
             if a.to_i == a
               first_escape = string_duplicate(a.to_i) 
-              last_escape = string_duplicate(a.to_i)
+              last_escape = first_escape
             else
               first_escape = string_duplicate a.to_i
               last_escape = string_duplicate a.to_i+1
             end
           else
             first_escape = " "
-            last_escape = string_duplicate(col_length - col.to_s.size )
+            last_escape = string_duplicate(col_length - col.to_s.size + 1)
           end
           string += first_escape
           string += col.to_s
